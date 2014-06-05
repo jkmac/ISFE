@@ -16,7 +16,7 @@
 
 function [x,resnorm,residual,q,ffit,intra,x0,norm_sofq] = runfit(qi, qf, lb, acu, mean, std, path_coord, path_sq, ffpath, sname)
 clear x; clear resnorm; clear residual; tic;
-
+lmt = 15;   %max atom atom distance r will be used for lsqfit
 %%
 fid1 = fopen(path_coord,'r');
 %load atoms coordinatfion
@@ -58,7 +58,6 @@ clear a ff s t;
 %dim, there is possible memory leak/overflow. For that case, pre-allocate r.
 global r pinfo1 pinfo2
 k = 1;
-lmt = 10;
 for i = 1:(dim-1)
     for j = (i+1):dim
         temp = sqrt((pos(1,i)-pos(1,j))^2+(pos(2,i)-pos(2,j))^2+(pos(3,i)-pos(3,j))^2);

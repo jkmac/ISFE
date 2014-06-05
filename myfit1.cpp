@@ -3,7 +3,6 @@
 #include <string.h>
 #include <assert.h>
 #include <math.h>
-//#include <x86intrin.h>
 #include <omp.h>
 
 // nx is r, nxq is xdata, strlN is atom_lst length respectively, nyf is atomff population
@@ -270,17 +269,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
         mxFree(atom_lst[i]);
     }
     mxFree(atom_lst);
-
     for (int i=0; i< strlN1; ++i) {
         mxFree(atomff_idx[i]);
     }
     mxFree(atomff_idx);
-    
     for (int i=0; i< strlN2; ++i) {
         mxFree(plst1[i]);
     }
     mxFree(plst1);
-    
     for (int i=0; i< strlN2; ++i) {
         mxFree(plst2[i]);
     }

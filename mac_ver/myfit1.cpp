@@ -266,17 +266,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
         mxFree(atom_lst[i]);
     }
     mxFree(atom_lst);
-
     for (int i=0; i< strlN1; ++i) {
         mxFree(atomff_idx[i]);
     }
     mxFree(atomff_idx);
-    
     for (int i=0; i< strlN2; ++i) {
         mxFree(plst1[i]);
     }
     mxFree(plst1);
-    
     for (int i=0; i< strlN2; ++i) {
         mxFree(plst2[i]);
     }
