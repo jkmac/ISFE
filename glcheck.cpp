@@ -179,7 +179,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     }
     
     mxAssert(!strcmp(atom_lst[0], atomff_idx[0]), "mxAssert:strcmp of atom_lst[0] and atomff[0] failed");
-    mxAssert(!strcmp(plst1[0], plst2[0]), "mxAssert:strcmp of plst1[0] and plst2[0] failed");
+    //mxAssert(!strcmp(plst1[0], plst2[0]), "mxAssert:strcmp of plst1[0] and plst2[0] failed");
     mxAssert(nx == strlN2, "mxAssert:r and pinfo length test failed");
     
     //load all required local input parameters

@@ -107,7 +107,7 @@ disp(sprintf('\nrms initialization parameter (Random Gaussian Distribution)\n Me
 %%
 %calculate normalized and interpolated SofQ data by calling normsq(drug_name) function
 global dq
-dq = 0.01;
+dq = 0.005;
 norm_sofq = normsq(path_sq);
 minq = min(norm_sofq(:,1));
 maxq = max(norm_sofq(:,1));
@@ -128,8 +128,8 @@ q = q';
 ffit = myfit1(x,q);
 ffit = q.*ffit;
 %%
-disp(sprintf('Lowest RMS:\t\t 10e%d', min(abs(x))));
-%save result, display information
+disp(sprintf('x(end-1) and X(end):\t\t %g  %g', x(end-1), x(end)));
+save result, display information
 intra = norm_sofq(:,2) - ffit;
 rslt = [q, norm_sofq(:,2), ffit, intra];
 outname = 'SQ.txt';
