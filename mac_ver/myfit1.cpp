@@ -7,6 +7,12 @@
 // nx is r, nxq is xdata, strlN is atom_lst length respectively, nyf is atomff population
 static mwSize nx, nxq, strlN, nxf, nyf;
 
+__inline void clear(double *lst) {
+    for (int i=0; i<nxq; i++) {
+        lst[i] = 0;
+    }
+}
+
 __inline void J(double *reslt, double r, double *xdata) {
     for (int i=0; i<nxq; i++) {
         double t1;
@@ -47,13 +53,12 @@ __inline void F(double *reslt, char *a, double *xdata, const double *formf, char
     int i, k;
     double *fct, *tmp, *tmp1;
     fct = (double *)mxMalloc(nxf*sizeof(double));
+
     tmp = (double *)mxMalloc(nxq*sizeof(double));   //hold tmp vector of xdata size
     tmp1 = (double *)mxMalloc(nxq*sizeof(double));
 
-    for (int i=0; i<nxq; i++) {                    //make sure tmp and tmp1 are zero array
-        tmp[i] = 0;
-        tmp1[i] = 0;
-    }
+    clear(tmp);
+    clear(tmp1);
     for (k=0; k<nyf; ++k) {
         if (strcmp(a, atomff_idx[k]) == 0) {
 	    //mexPrintf("found atom %s\n", a);
@@ -74,6 +79,7 @@ __inline void F(double *reslt, char *a, double *xdata, const double *formf, char
     add(tmp1, tmp1, tmp);
     expX(tmp, fct[8], -fct[9], xdata);
     add(tmp1, tmp1, tmp);
+    clear(reslt);
     addconst(reslt, tmp1, fct[10]);
     mxFree(fct);
     mxFree(tmp);
@@ -89,13 +95,11 @@ void myfit1(double *x, double *xdata, double *res, const double *r, const double
     tmp1 = (double *)mxMalloc(nxq*sizeof(double));
     norm = (double *)mxMalloc(nxq*sizeof(double));
 
-    for (int i=0; i<nxq; i++) {
-        tmp1[i] = 0;
-        norm[i] = 0;
-    }
+    clear(tmp1);
+    clear(norm);
+
     //extract string name of atom pair
     //fc = fc + f(a1,xdata).*f(a2,xdata).*J(r(k)*xdata).*exp(-0.5*x(k)^2*xdata.^2);
-
     for (int i=0; i<nx; i++) {
         F(f1, plst1[i], xdata, formf, atomff_idx);
         F(f2, plst2[i], xdata, formf, atomff_idx);
@@ -106,12 +110,13 @@ void myfit1(double *x, double *xdata, double *res, const double *r, const double
         dotp(f2, ft, f1);            //f2 hold f1()*f2()*J()*exp()
         add(tmp1, tmp1, f2);
     }
-
+    // fast version ?
     for (int i=0; i<strlN; i++) {
-        F(f1, atom_lst[i], xdata, formf, atomff_idx);    //f1 hold f()
-        dotp(f2, f1, f1);                       //f2 hold f().^2
-        add(norm, norm, f2);
+        F(f1, atom_lst[i], xdata, formf, atomff_idx);    //f1 hold f()                     //f2 hold f().^2
+        add(norm, norm, f1);
     }
+    dotp(ft, norm, norm);           //ft = norm.^2
+    addconst(norm, ft, 0.01);    //prevent near zero element in ft vector
 
     for (int i=0; i<nxq; i++) {
         double t = tmp1[i];
