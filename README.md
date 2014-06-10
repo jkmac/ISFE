@@ -1,6 +1,6 @@
 #Intramolecule Structure Factor Extraction
 
-The program take experimental total scattering SQ data as input and perform intra-molecule SQ extraction based on optimization algorithm.
+The program takes experimental total scattering SQ data as input and performs intra-molecule SQ extraction basing on optimization algorithm.
 
 The program is developed in Matlab environment with core cost function written in C. Various performance tuning have been applied to the C code, therefore the program runs efficiently even that it resides in Matlab environment. 
 
