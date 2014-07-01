@@ -32,7 +32,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
     const char *pname2 = "pinfo2";
 
     //2D char matrix hold global variable
-    int status;
     char **atom_lst, **atomff_idx;
     char **plst1, **plst2;
 
@@ -50,11 +49,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
     mexErrMsgIdAndTxt("MyToolbox:myfit:notRowVector",
                       "Global r must be a column vector.");
 	}     
-    if (status==1){
-        mexPrintf("Variable %s\n", rname);
-        mexErrMsgIdAndTxt( "MATLAB:myfit:errorSettingGlobal",
-                "Could not put variable in global workspace.\n");
-    }
     const double *r = mxGetPr(array_r);
 
     // load global formf matrix
