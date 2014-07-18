@@ -124,7 +124,7 @@ fit_range = norm_sofq(idxi:idxf, :);
 %%
 q = minq:dq:maxq;
 q = q';
-ffit = myfit1(x,q);
+ffit = sqfactor(x,q);
 ffit = q.*ffit;
 %%
 disp(sprintf('x(end-1) and X(end):\t\t %g  %g', x(end-1), x(end)));
