@@ -1,4 +1,4 @@
-#Intramolecule Structure Factor Extraction
+#XISF -Separation of intra- and inter-molecular interactions from total x-ray scattering data
 
 The program takes experimental total scattering SQ data as input and performs intra-molecule SQ extraction basing on optimization algorithm.
 
