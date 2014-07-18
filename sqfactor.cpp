@@ -86,7 +86,7 @@ __inline void F(double *reslt, char *a, double *xdata, const double *formf, char
     mxFree(tmp1);
 }
 
-void myfit1(double *x, double *xdata, double *res, const double *r, const double *formf, char **atom_lst, char **atomff_idx, char **plst1, char **plst2) {
+void sqfactor(double *x, double *xdata, double *res, const double *r, const double *formf, char **atom_lst, char **atomff_idx, char **plst1, char **plst2) {
     double *f1, *f2, *ft, *tmp1, *norm;
     f1 = (double *)mxMalloc(nxq*sizeof(double));
     f2 = (double *)mxMalloc(nxq*sizeof(double));
@@ -257,7 +257,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     plhs[0] = mxCreateDoubleMatrix(nxq, 1, mxREAL);
     res = mxGetPr(plhs[0]);
     //call working function
-    myfit1(x, xdata, res, r, formf, atom_lst, atomff_idx, plst1, plst2);
+    sqfactor(x, xdata, res, r, formf, atom_lst, atomff_idx, plst1, plst2);
     
     // clean mxArray
     mxDestroyArray(array_r);
