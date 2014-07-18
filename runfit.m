@@ -14,7 +14,7 @@
 % deviation. So mean = 0.5, std = 0.2 would make sure that all initialized
 % rms is around this number.
 
-function [x,resnorm,residual,q,ffit,intra,x0,norm_sofq] = runfit(qi, qf, lb, acu, mean, std, path_coord, path_sq, ffpath, sname)
+function [x,resnorm,residual,q,ffit,intra,x0,norm_sofq] = runfit(qi, qf, acu, mean, std, path_coord, path_sq, ffpath, sname)
 clear x; clear resnorm; clear residual; tic;
 lmt = 15;   %max atom atom distance r will be used for lsqfit
 %%
@@ -100,7 +100,6 @@ formf = formf';
 
 disp(sprintf('Fitting range:\t\t\t [%d, %d]', qi, qf));
 disp(sprintf('rms population:\t\t\t %d', length(r)));
-disp(sprintf('Lower bound of |rms|:\t\t %d', lb));
 disp(sprintf('Fitting accuracy:\t\t 10e%d', acu));
 disp(sprintf('\nrms initialization parameter (Random Gaussian Distribution)\n Mean:\t\t\t %g\n Std:\t\t\t %g', mean, std));
 
@@ -120,7 +119,7 @@ for i = 1:size(norm_sofq,1)
 end
 fit_range = norm_sofq(idxi:idxf, :);
 %script, call fitting function to fit on select Q range
-[x,x0,resnorm,residual] = lsqfit(fit_range, lb, acu, mean, std);
+[x,x0,resnorm,residual] = lsqfit(fit_range, acu, mean, std);
 
 %%
 q = minq:dq:maxq;
@@ -129,7 +128,7 @@ ffit = myfit1(x,q);
 ffit = q.*ffit;
 %%
 disp(sprintf('x(end-1) and X(end):\t\t %g  %g', x(end-1), x(end)));
-save result, display information
+
 intra = norm_sofq(:,2) - ffit;
 rslt = [q, norm_sofq(:,2), ffit, intra];
 outname = 'SQ.txt';
