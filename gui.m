@@ -325,7 +325,7 @@ function runfit_Callback(hObject, eventdata, handles)
 set(hObject,'string','Calculating...');
 drawnow
 [x,resnorm,residual,q,ffit,intra,x0,norm_sofq] = runfit(handles.qinit,.../
-    handles.qfinal,handles.rmslow,handles.acu,handles.mean,handles.var, .../
+    handles.qfinal,handles.acu,handles.mean,handles.var, .../
     handles.path_coord,handles.path_sq,handles.ffpath, handles.sname);
 set(hObject,'string','Finished');
 drawnow
@@ -341,7 +341,7 @@ plot(handles.axes2,q, intra);
 title(handles.axes2,'S(Q) - F(Q) Intermolecule structure factor')
 axis(handles.axes2,[0 handles.qfinal -2.5 4]);
 
-hist(handles.axes3,abs(x0))
+hist(handles.axes3,abs(x0(1:end-2)))
 title(handles.axes3,['Gaussian initialization of RMS, ', 'Mean = ', .../
 num2str(handles.mean), ', Std = ', num2str(handles.var)])
 

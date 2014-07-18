@@ -3,22 +3,144 @@
 #include <string.h>
 #include <assert.h>
 #include <math.h>
+#include <omp.h>
 
 // nx is r, nxq is xdata, strlN is atom_lst length respectively, nyf is atomff population
 static mwSize nx, nxq, strlN, nxf, nyf;
 
+__inline void clear(double *lst) {
+    for (int i=0; i<nxq; i++) {
+        lst[i] = 0;
+    }
+}
+
+__inline void J(double *reslt, double r, double *xdata) {
+#pragma omp parallel for
+    for (int i=0; i<nxq; i++) {
+        double t1;
+        t1 = r*xdata[i];
+        reslt[i] = sin(t1)/t1;
+    }
+}
+
+__inline void addconst(double *reslt, double *x, const double y) {
+    for (int i=0; i<nxq; i++) {
+    reslt[i] = x[i]+y;
+    }
+}
+
+__inline void dotp(double *reslt, double *x, double *y) {
+    for (int i=0; i<nxq; i++) {
+    reslt[i] = x[i]*y[i];
+    }
+}
+
+__inline void add(double *reslt, double *x, double *y) {
+    for (int i=0; i<nxq; i++) {
+    reslt[i] = x[i]+y[i];
+    }
+}
+
+__inline void expX(double *reslt, const double pre, const double x, double *xdata) {
+    // calculate pre*exp(x*xdata.^2)
+    dotp(reslt, xdata, xdata);  //reslt hold xdata.^2
+#pragma omp parallel for
+    for (int i=0; i<nxq; i++) {
+        reslt[i] = pre*exp(x*reslt[i]);
+    }
+}
+
+//nxf should be 11, formfactor elements for each atom, nyf should be 10, current atoms in the list
+__inline void F(double *reslt, char *a, double *xdata, const double *formf, char**atomff_idx) {
+    int flag = 0;
+    int i, k;
+    double *fct, *tmp, *tmp1;
+    fct = (double *)mxMalloc(nxf*sizeof(double));
+
+    tmp = (double *)mxMalloc(nxq*sizeof(double));   //hold tmp vector of xdata size
+    tmp1 = (double *)mxMalloc(nxq*sizeof(double));
+
+    clear(tmp);
+    clear(tmp1);
+    for (k=0; k<nyf; ++k) {
+        if (strcmp(a, atomff_idx[k]) == 0) {
+	    //mexPrintf("found atom %s\n", a);
+            for (i=11; i--;) {          //subsitute 11 with nxf if nxf is not 11 anymore (list change)
+                fct[i] = formf[k*11 + i];
+            }
+            flag = 1;
+        }
+    }
+    //mxAssert(flag, "mxAssert:F atom not found in form factor list, please update the list manually.");
+    expX(tmp, fct[0], -fct[1], xdata);
+    add(tmp1, tmp1, tmp);
+    expX(tmp, fct[2], -fct[3], xdata);
+    add(tmp1, tmp1, tmp);
+    expX(tmp, fct[4], -fct[5], xdata);
+    add(tmp1, tmp1, tmp);
+    expX(tmp, fct[6], -fct[7], xdata);
+    add(tmp1, tmp1, tmp);
+    expX(tmp, fct[8], -fct[9], xdata);
+    add(tmp1, tmp1, tmp);
+    clear(reslt);
+    addconst(reslt, tmp1, fct[10]);
+    mxFree(fct);
+    mxFree(tmp);
+    mxFree(tmp1);
+}
+
+void sqfactor(double *x, double *xdata, double *res, const double *r, const double *formf, char **atom_lst, char **atomff_idx, char **plst1, char **plst2) {
+    double *f1, *f2, *ft, *tmp1, *norm;
+    f1 = (double *)mxMalloc(nxq*sizeof(double));
+    f2 = (double *)mxMalloc(nxq*sizeof(double));
+    ft = (double *)mxMalloc(nxq*sizeof(double));
+    //zero vectors
+    tmp1 = (double *)mxMalloc(nxq*sizeof(double));
+    norm = (double *)mxMalloc(nxq*sizeof(double));
+
+    clear(tmp1);
+    clear(norm);
+
+    //extract string name of atom pair
+    //fc = fc + f(a1,xdata).*f(a2,xdata).*J(r(k)*xdata).*exp(-0.5*x(k)^2*xdata.^2);
+    for (int i=0; i<nx; i++) {
+        F(f1, plst1[i], xdata, formf, atomff_idx);
+        F(f2, plst2[i], xdata, formf, atomff_idx);
+        dotp(ft, f1, f2);            //f hold f1*f2
+        J(f1, r[i], xdata);         //f1 hold J(r.*xdata)
+        expX(f2, 1.0, -0.5*x[i]*x[i], xdata);  //f2 hold exp(...)
+        dotp(f1, f1, f2);       //f1 hold J()*exp()
+        dotp(f2, ft, f1);            //f2 hold f1()*f2()*J()*exp()
+        add(tmp1, tmp1, f2);
+    }
+    // fast version ?
+    for (int i=0; i<strlN; i++) {
+        F(f1, atom_lst[i], xdata, formf, atomff_idx);    //f1 hold f()                     //f2 hold f().^2
+        add(norm, norm, f1);
+    }
+    dotp(ft, norm, norm);           //ft = norm.^2
+    addconst(norm, ft, 0.01);    //prevent near zero element in ft vector
+#pragma omp parallel for
+    for (int i=0; i<nxq; i++) {
+        double t = tmp1[i];
+        tmp1[i] = t/norm[i];       //tmp1 hold f./normf the normalized
+    }
+#pragma omp parallel for
+    for (int i=0; i<nxq; i++) {
+        double m1, m2;
+         res[i] = x[nx]*tmp1[i] + x[nx+1]/xdata[i];
+    }
+
+    mxFree(f1); 
+    mxFree(f2);
+    mxFree(ft);
+    mxFree(tmp1);
+    mxFree(norm);
+}
+
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
-    //check input parameters
-    if (nrhs !=2) {
-        mexErrMsgIdAndTxt( "MATLAB:myfit:minrhs",
-                "2 input arguments required.");
-    }
-    if(nlhs != 1){
-        mexErrMsgIdAndTxt( "MATLAB:myfit:maxrhs",
-                "Requires 1 output argument.");
-    }
     
     //load all required global parameters
     //---------------------------------------------------------------------------------
@@ -39,40 +161,16 @@ void mexFunction( int nlhs, mxArray *plhs[],
     //---------------------------------------------------------------------------------
     // load global r
 	array_r = mexGetVariable("global", rname);
-    if (array_r == NULL ) {
-        mexPrintf("Variable %s\n", rname);
-        mexErrMsgIdAndTxt( "MATLAB:myfit:invalidGlobalVarState",
-                    "Global variable was cleared from the MATLAB global workspace.\n");
-        //array_r=mxCreateDoubleMatrix(1,1,mxREAL);
-    }
-    nx = mxGetM(array_r);   //r length
-    if(mxGetN(array_r) != 1 || nx < 1) {
-    mexErrMsgIdAndTxt("MyToolbox:myfit:notRowVector",
-                      "Global r must be a column vector.");
-	}     
-
+    nx = mxGetM(array_r);   //r length  
     const double *r = mxGetPr(array_r);
 
     // load global formf matrix
     matx_formf = mexGetVariable("global", ffname);  //should be 11x10 matrix, after reading should be 10x11(original size)
-    if (matx_formf == NULL ) {
-        mexPrintf("Variable %s\n", ffname);
-        mexErrMsgIdAndTxt( "MATLAB:myfit:invalidGlobalVarState",
-                    "Global variable was cleared from the MATLAB global workspace.\n");
-    }
     
     nxf = mxGetM(matx_formf);     //x is col order, vertical
     nyf = mxGetN(matx_formf);     //y is row order, horizontal
-    mxAssert(nyf == 10, "mxAssert:form factor atoms should be 10");
-    mxAssert(nxf == 11, "mxAssert:form factor parameter shoud 11 for each atom");
-    //mexPrintf("Original formf matrix's transpose is %ix%i\n", nxf, nyf);
-    const double *formf = mxGetPr(matx_formf);      //formf is row-major order now
-    // for (int i=0; i<nxf*nyf; ++i) {
-    //     mexPrintf("%6.4f ", *(formf+i));
-    //     if (fmod(i+1,11) == 0)
-    //         mexPrintf("\n");
-    // }
 
+    const double *formf = mxGetPr(matx_formf);      //formf is row-major order now
     //---------------------------------------------------------------------------------
     // load atom_lst
     mxArray *atom_idx;
@@ -82,14 +180,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     buf = mxArrayToString(atom_idx);
     strlN = mxGetN(atom_idx);   //atom list length, atom population
     mwSize strsN = mxGetM(atom_idx);
-    /*
-    for (int k=0; k<strlN; ++k) {
-	int j = 2*k;
-	mexPrintf("buf[%i], buf[%i] is %c %c\n", j, j+1, buf[j], buf[j+1]);
-    }
-    */
     
-    //mexPrintf("mxArray length is %i, width is %i\n", strsN, strlN);
 
     atom_lst = (char**)mxMalloc(strlN*sizeof(char*));
     for (int i=0; i<strlN; ++i) {
@@ -101,7 +192,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
         atom_lst[i][strsN] = '\0';
         //mexPrintf("%s", atom_lst[i]);
     }
-    //mexPrintf("\n");
     
     // load atomff_index
     mxArray *atom_idx1;
@@ -111,8 +201,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
     buf1 = mxArrayToString(atom_idx1);
     mwSize strlN1 = mxGetN(atom_idx1);
     mwSize strsN1 = mxGetM(atom_idx1);
-    //mexPrintf("mxArray length is %i, width is %i\n", strsN1, strlN1);
-    // mexPrintf("%s\n", buf);
     atomff_idx = (char**)mxMalloc(strlN1*sizeof(char*));
     for (int i=0; i<strlN1; ++i) {
 	atomff_idx[i] = (char *)mxMalloc((strsN1+1)*sizeof(char));
@@ -123,7 +211,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
         atomff_idx[i][strsN1] = '\0';
         //mexPrintf("%s", atomff_idx[i]);
     }
-    //mexPrintf("\n");
     
     // load pinfo1
     mxArray *atom_idx2;
@@ -133,8 +220,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
     buf2 = mxArrayToString(atom_idx2);
     mwSize strlN2 = mxGetN(atom_idx2);
     mwSize strsN2 = mxGetM(atom_idx2);
-    //mexPrintf("mxArray length is %i, width is %i\n", strsN2, strlN2);
-    // mexPrintf("%s\n", buf);
     plst1 = (char**)mxMalloc(strlN2*sizeof(char*));
     for (int i=0; i<strlN2; ++i) {
         plst1[i] = (char *)mxMalloc((strsN2+1)*sizeof(char));
@@ -145,15 +230,12 @@ void mexFunction( int nlhs, mxArray *plhs[],
         plst1[i][strsN2] = '\0';
         //mexPrintf("%s", plst1[i]);
     }
-    //mexPrintf("\n");
     
     // load pinfo2, use the same buffer parameters, since they are same size
     atom_idx2 = mexGetVariable("global", pname2);
     buf2 = mxArrayToString(atom_idx2);
     strlN2 = mxGetN(atom_idx2);
     strsN2 = mxGetM(atom_idx2);
-    //mexPrintf("mxArray length is %i, width is %i\n", strsN2, strlN2);
-    // mexPrintf("%s\n", buf);
     plst2 = (char**)mxMalloc(strlN2*sizeof(char*));
     for (int i=0; i<strlN2; ++i) {
         plst2[i] = (char *)mxMalloc((strsN2+1)*sizeof(char));
@@ -164,19 +246,6 @@ void mexFunction( int nlhs, mxArray *plhs[],
         plst2[i][strsN2] = '\0';
         //mexPrintf("%s", plst2[i]);
     }
-    //mexPrintf("\n");
-    
-    // simple test
-    // test string array length consistancy
-    const mwSize sz = sizeof(atomff_idx[0]);
-    for (int k=0; k<strlN; ++k) {
-	if(sz != sizeof(atom_lst[k]) )
-	    mexErrMsgIdAndTxt( "MATLAB:myfit:invalidAtomListName:length", "Name length is not consistant with form factor atom name, check formating of the file.");
-    }
-    
-    mxAssert(!strcmp(atom_lst[0], atomff_idx[0]), "mxAssert:strcmp of atom_lst[0] and atomff[0] failed");
-    //mxAssert(!strcmp(plst1[0], plst2[0]), "mxAssert:strcmp of plst1[0] and plst2[0] failed");
-    mxAssert(nx == strlN2, "mxAssert:r and pinfo length test failed");
     
     //load all required local input parameters
     //---------------------------------------------------------------------------------
@@ -185,24 +254,13 @@ void mexFunction( int nlhs, mxArray *plhs[],
     double *res;
     nxq = mxGetM(prhs[1]);      //xdata length;
 
-    if(mxGetM(prhs[0]) < 1 || mxGetN(prhs[0]) != 1) {
-    mexErrMsgIdAndTxt("MyToolbox:myfit:notRowVector",
-                      "Input x0 must be a column vector.");
-    }
-    if(mxGetM(prhs[1]) < 1 || mxGetN(prhs[1]) != 1) {
-    mexErrMsgIdAndTxt("MyToolbox:myfit:notRowVector",
-                      "Input xdata must be a column vector.");
-    }
     x = mxGetPr(prhs[0]);
     xdata = mxGetPr(prhs[1]);
 
     plhs[0] = mxCreateDoubleMatrix(nxq, 1, mxREAL);
-    if (plhs[0] == NULL ) {
-        mexErrMsgIdAndTxt( "MATLAB:myfit:invalidAllocationResult",
-                    "Failed to allocate memory for plhs[0] in myfit.cpp\n");
-    }
     res = mxGetPr(plhs[0]);
-    *res = 0;
+    //call working function
+    sqfactor(x, xdata, res, r, formf, atom_lst, atomff_idx, plst1, plst2);
     
     // clean mxArray
     mxDestroyArray(array_r);
@@ -216,17 +274,14 @@ void mexFunction( int nlhs, mxArray *plhs[],
         mxFree(atom_lst[i]);
     }
     mxFree(atom_lst);
-
     for (int i=0; i< strlN1; ++i) {
         mxFree(atomff_idx[i]);
     }
     mxFree(atomff_idx);
-    
     for (int i=0; i< strlN2; ++i) {
         mxFree(plst1[i]);
     }
     mxFree(plst1);
-    
     for (int i=0; i< strlN2; ++i) {
         mxFree(plst2[i]);
     }
