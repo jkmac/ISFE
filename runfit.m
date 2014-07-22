@@ -34,8 +34,27 @@ if size(t,2) == 1
 elseif size(t,2) == 2
     atom_type = t;
 end
+
+% extract atom label/number, put it into atom_label
+s = a{2};
+t = char(a{2});
+if size(t,2) == 3
+    for i=1:size(t,1)
+        if length(s{i}) == 3
+            s(i) = strcat(s(i), {blanks(1)});
+        end
+        if length(s{i}) == 2
+            s(i) = strcat(s(i), {blanks(2)});
+        end
+    end
+    atom_label = char(s);
+elseif size(t,2) == 4
+    atom_label = t;
+end
+
 fclose(fid1);
 pos = [a{3},a{4},a{5}];
+
 
 global dim
 dim = size(pos,1);
@@ -91,6 +110,22 @@ for i = 1:(dim-1)
         end
     end
 end
+
+% atom label pair information for printing
+linfo1 = char(zeros(length(r), 4));
+linfo2 = char(zeros(length(r), 4));
+k = 1;
+for i = 1:(dim-1)
+    for j = (i+1):dim
+        temp = sqrt((pos(1,i)-pos(1,j))^2+(pos(2,i)-pos(2,j))^2+(pos(3,i)-pos(3,j))^2);
+        if temp < lmt 
+            linfo1(k,:) = atom_label(i,:);
+            linfo2(k,:) = atom_label(j,:);
+            k = k + 1;
+        end
+    end
+end
+
 %input information
 atom_type = atom_type';
 atomff_index = atomff_index';
@@ -149,12 +184,13 @@ filename = 'RMS_stat.txt';
 filename = strcat(datestr(now, '_HHMM_'), filename);
 filename = strcat(sname, filename);
 fid = fopen(filename,'w');
-pinfo1 = pinfo1';
-pinfo2 = pinfo2';
+% pinfo1 = pinfo1';
+% pinfo2 = pinfo2';
+
 fprintf(fid, 'atom1\tatom2\tr\trms\n');
 for i = 1:length(r)
-    if r(i) <= lmt
-    fprintf(fid,'%s\t%s\t%4.2f\t%4.3f\n', pinfo1(i), pinfo2(i), r(i), abs(x(i)));
+    if r(i) <= 2.5
+    fprintf(fid,'%s\t%s\t%4.2f\t%4.3f\n', linfo1(i,:), linfo2(i,:), r(i), abs(x(i)));
     end
 end
 fclose(fid);
