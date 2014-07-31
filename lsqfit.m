@@ -11,7 +11,7 @@ function [x,x0,resnorm,residual] = lsqfit(sq, acu, mean, std)
     lb = 0.05*ones(size(ub));	%low bound on x parameter, rms >= 0.05
     lb(end) = -max_shift;
     lb(end-1) = low_lb;
-	options = optimset('TolFun',10^acu,'MaxFunEvals',200000);
+	options = optimset('TolFun',10^acu,'MaxFunEvals',200000, 'MaxIter', 800);
 	%random initialization of rms (x0)
 	x0 = abs(random('Normal', mean, std, length(r)+2, 1));
 	%call the routine

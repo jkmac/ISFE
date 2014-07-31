@@ -184,8 +184,6 @@ filename = 'RMS_stat.txt';
 filename = strcat(datestr(now, '_HHMM_'), filename);
 filename = strcat(sname, filename);
 fid = fopen(filename,'w');
-% pinfo1 = pinfo1';
-% pinfo2 = pinfo2';
 
 fprintf(fid, 'atom1\tatom2\tr\trms\n');
 for i = 1:length(r)
