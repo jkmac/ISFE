@@ -16,8 +16,13 @@ in Matlab console, and the GUI will pop up. Enter the sample name, desired intra
 After setting up proper input parameters, press "Start" to run the program. Upon finishing, the program will write RMS data and extracted SQ data to working directory. The file name starts with sample name you have entered. 
 
 #### Form factor format
-The 'form_factors' stores the atomic form factors for various common atoms. You can change or update the list with recent data but should follow the general formating. Each row corresponds to one atom, starts with the atom name, followed by 11 float numbers in the order of a[i] b[i] for i = 1:5 (10 total) plus one shifting constant c.
-
+The file 'form_factors' stores the atomic form factors for various interested atoms. You can change or update the file with more recent data. The format of the data is as follow:
+```
+C 2.657506 14.780758 1.078079 0.776775 1.490909 42.086843 -4.241070 -0.000294 0.713791 0.239535 4.297983
+N 11.893780 0.000158 3.277479 10.232723 1.858092 30.344690 0.858927 0.656065 0.912985 0.217287 -11.804902
+```
+Each line corresponds to one atom type starting with the atom name, followed by 5 pairs of a[i] b[i] and one shifting constant c. There are totaly 11 numerical parameters for single atom type. Corrently, the data is taken from:
+Waasmaier D., Kirfel A. New analytical scattering-  factor functions for free atoms and ions. Acta Crystallogr. A  51(3):416–431 (1995). 
 
 #### How to generate coordinate input file
 The general work flow is:
