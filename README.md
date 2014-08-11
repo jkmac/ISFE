@@ -32,10 +32,17 @@ Each line corresponds to one atom type starting with the atom name, followed by 
 The general work flow is:
 Find PDB data file -> Open it in CrystalMaker -> Check the correctness -> Export Coordinate -> Delete extra lines and leave only the coordinates lines.
 
-The file looks like:
+The format is
+```
+Atom        identifier      x     y     z
+```
+The coordinates should be in angstrom unit.
+
+The actual file looks like:
 ```
 C        C1      1.21500     0.19840     0.07980
 C        C2     -1.21130     0.19250     0.07670
 C        C3      1.51180    -1.08760    -0.41210
 ```
+
 Alternatively, one could use any crystallography program to export the orthornomal basis coordinates and mannually edit the file following the format above.
