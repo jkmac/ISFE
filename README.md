@@ -22,7 +22,7 @@ C 2.657506 14.780758 1.078079 0.776775 1.490909 42.086843 -4.241070 -0.000294 0.
 N 11.893780 0.000158 3.277479 10.232723 1.858092 30.344690 0.858927 0.656065 0.912985 0.217287 -11.804902
 ```
 Each line corresponds to one atom type starting with the atom name, followed by 5 pairs of a[i] b[i] and one shifting constant c. There are totaly 11 numerical parameters for single atom type. Corrently, the data is taken from:
-Waasmaier D., Kirfel A. New analytical scattering-  factor functions for free atoms and ions. Acta Crystallogr. A  51(3):416–431 (1995). 
+>Waasmaier D., Kirfel A. New analytical scattering-  factor functions for free atoms and ions. Acta Crystallogr. A  51(3):416–431 (1995). 
 
 #### How to generate coordinate input file
 The general work flow is:
