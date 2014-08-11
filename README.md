@@ -1,7 +1,7 @@
-##XISF -Separation of intra- and inter-molecular interactions from total x-ray scattering data
+##XISF - Separation of intra- and inter-molecular interactions from total x-ray scattering data
 
 #### What is XISF
-The program takes experimental total scattering SQ data as input and performs intra-molecule SQ extraction basing on optimization algorithm.
+The program takes experimental total X-ray scattering structure factor data S(Q) as input and performs intermolecule S(Q) extraction using trust-region optimization.
 
 #### Environment
 The program is developed in Matlab environment with core cost function written in C. Various performance tuning have been applied to the C code, therefore the program runs efficiently even that it resides in Matlab environment. 
