@@ -16,7 +16,7 @@ in Matlab console, and the GUI will pop up. Enter the sample name, desired intra
 After setting up proper input parameters, press "Start" to run the program. Upon finishing, the program will write RMS data and extracted SQ data to working directory. The file name starts with sample name you have entered. 
 
 #### Form factor format
-The file 'form_factors' stores the atomic form factors for various interested atoms. You can change or update the file with more recent data. The format of the data is as follow:
+The file 'form_factors' stores the atomic form factors for various interested atoms. You can change or update the file with more recent data. The format of the data is as follow (first two lines):
 ```
 C 2.657506 14.780758 1.078079 0.776775 1.490909 42.086843 -4.241070 -0.000294 0.713791 0.239535 4.297983
 N 11.893780 0.000158 3.277479 10.232723 1.858092 30.344690 0.858927 0.656065 0.912985 0.217287 -11.804902
