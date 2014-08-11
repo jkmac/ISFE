@@ -7,13 +7,17 @@ The program takes experimental total X-ray scattering structure factor data S(Q)
 The program is developed in Matlab environment with core cost function written in C. Various performance tuning have been applied to the C code, therefore the program runs efficiently even that it resides in Matlab environment. 
 
 #### How to run 
-To start the program, enter the program root directory in Matlab, and type
+To start the program, enter the program root directory in Matlab
+```matlab
+cd path-to-XISF-directory
+```
+and start the GUI
 ```matlab
 gui
 ```
-in Matlab console, and the GUI will pop up. Enter the sample name, desired intra-molecule SQ fitting range on experimental data (usually from ~5 to max of Q data). The fitting accuracy is a negative integer. For example, -3 means the algorithm will guarantee the residual to be smaller than 10e-3. One can also control the initialization of RMS value by adjusting the mean and variance of the Gaussian. 
+ Enter the sample name, desired intra-molecule SQ fitting range on experimental data (usually from q=4 to the max of S(q) data). The fitting accuracy is a negative integer. For example, -3 means the target residual of fitted S(q) data is smaller than 10e-3. The initial root-mean-square (rms) value is sampled from Gaussian distribution. One can adjust the mean and standard deviation of the Gaussian according to their needs.
 
-After setting up proper input parameters, press "Start" to run the program. Upon finishing, the program will write RMS data and extracted SQ data to working directory. The file name starts with sample name you have entered. 
+After setting up proper input parameters, press "Start" to run the program. Upon finishing, the program will write RMS data and extracted SQ data to XISF root directory in ASCII format. The file name starts with text that was entered earlier. 
 
 #### Form factor format
 The file 'form_factors' stores the atomic form factors for various interested atoms. You can change or update the file with more recent data. The format of the data is as follow (first two lines):
