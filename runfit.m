@@ -141,7 +141,7 @@ disp(sprintf('\nrms initialization parameter (Random Gaussian Distribution)\n Me
 %%
 %calculate normalized and interpolated SofQ data by calling normsq(drug_name) function
 global dq
-dq = 0.01;
+dq = 0.02;
 norm_sofq = normsq(path_sq);
 minq = min(norm_sofq(:,1));
 maxq = max(norm_sofq(:,1));
