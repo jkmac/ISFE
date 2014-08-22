@@ -7,13 +7,13 @@
 // nx is r, nxq is xdata, strlN is atom_lst length respectively, nyf is atomff population
 static mwSize nx, nxq, strlN, nxf, nyf;
 
-__inline void clear(double *lst) {
+inline void clear(double *lst) {
     for (int i=0; i<nxq; i++) {
         lst[i] = 0;
     }
 }
 
-__inline void J(double *reslt, double r, double *xdata) {
+inline void J(double *reslt, double r, double *xdata) {
     for (int i=0; i<nxq; i++) {
         double t1;
         t1 = r*xdata[i];
@@ -21,25 +21,32 @@ __inline void J(double *reslt, double r, double *xdata) {
     }
 }
 
-__inline void addconst(double *reslt, double *x, const double y) {
+inline void addconst(double *reslt, double *x, const double y) {
     for (int i=0; i<nxq; i++) {
     reslt[i] = x[i]+y;
     }
 }
 
-__inline void dotp(double *reslt, double *x, double *y) {
+inline void dotp(double *reslt, double *x, double *y) {
     for (int i=0; i<nxq; i++) {
     reslt[i] = x[i]*y[i];
     }
 }
 
-__inline void add(double *reslt, double *x, double *y) {
+inline void vtime(double *reslt, double x, double *y) {
+    for (int i=0; i<nxq; i++) {
+    reslt[i] = x*y[i];
+    }
+}
+
+
+inline void add(double *reslt, double *x, double *y) {
     for (int i=0; i<nxq; i++) {
     reslt[i] = x[i]+y[i];
     }
 }
 
-__inline void expX(double *reslt, const double pre, const double x, double *xdata) {
+inline void expX(double *reslt, const double pre, const double x, double *xdata) {
     // calculate pre*exp(x*xdata.^2)
     dotp(reslt, xdata, xdata);  //reslt hold xdata.^2
     for (int i=0; i<nxq; i++) {
@@ -48,42 +55,52 @@ __inline void expX(double *reslt, const double pre, const double x, double *xdat
 }
 
 //nxf should be 11, formfactor elements for each atom, nyf should be 10, current atoms in the list
-__inline void F(double *reslt, char *a, double *xdata, const double *formf, char**atomff_idx) {
+void F(double *reslt, char *a, double *xdata, const double *formf, char**atomff_idx) {
     int flag = 0;
     int i, k;
-    double *fct, *tmp, *tmp1;
+    double *fct, *tmp, *tmp1, *xsq;
     fct = (double *)mxMalloc(nxf*sizeof(double));
-
+    
     tmp = (double *)mxMalloc(nxq*sizeof(double));   //hold tmp vector of xdata size
     tmp1 = (double *)mxMalloc(nxq*sizeof(double));
+    xsq = (double *)mxMalloc(nxq*sizeof(double));
 
     clear(tmp);
     clear(tmp1);
+    clear(xsq);
+    
     for (k=0; k<nyf; ++k) {
         if (strcmp(a, atomff_idx[k]) == 0) {
-	    //mexPrintf("found atom %s\n", a);
+            //mexPrintf("found atom %s\n", a);
             for (i=11; i--;) {          //subsitute 11 with nxf if nxf is not 11 anymore (list change)
                 fct[i] = formf[k*11 + i];
             }
             flag = 1;
-        }
+        } 
     }
+    if (flag == 0)
+         mexErrMsgIdAndTxt( "MATLAB:sqfactor:F",
+                "Can't find atom in the form factor list.");
+        
     //mxAssert(flag, "mxAssert:F atom not found in form factor list, please update the list manually.");
-    expX(tmp, fct[0], -fct[1], xdata);
+    vtime(xsq, 0.0795775, xdata); //s = q/(4*pi)
+    
+    expX(tmp, fct[0], -fct[1], xsq);
     add(tmp1, tmp1, tmp);
-    expX(tmp, fct[2], -fct[3], xdata);
+    expX(tmp, fct[2], -fct[3], xsq);
     add(tmp1, tmp1, tmp);
-    expX(tmp, fct[4], -fct[5], xdata);
+    expX(tmp, fct[4], -fct[5], xsq);
     add(tmp1, tmp1, tmp);
-    expX(tmp, fct[6], -fct[7], xdata);
+    expX(tmp, fct[6], -fct[7], xsq);
     add(tmp1, tmp1, tmp);
-    expX(tmp, fct[8], -fct[9], xdata);
+    expX(tmp, fct[8], -fct[9], xsq);
     add(tmp1, tmp1, tmp);
     clear(reslt);
     addconst(reslt, tmp1, fct[10]);
     mxFree(fct);
     mxFree(tmp);
     mxFree(tmp1);
+    mxFree(xsq);
 }
 
 void sqfactor(double *x, double *xdata, double *res, const double *r, const double *formf, char **atom_lst, char **atomff_idx, char **plst1, char **plst2) {
@@ -116,11 +133,10 @@ void sqfactor(double *x, double *xdata, double *res, const double *r, const doub
         add(norm, norm, f1);
     }
     dotp(ft, norm, norm);           //ft = norm.^2
-    addconst(norm, ft, 0.01);    //prevent near zero element in ft vector
 
     for (int i=0; i<nxq; i++) {
         double t = tmp1[i];
-        tmp1[i] = t/norm[i];       //tmp1 hold f./normf the normalized
+        tmp1[i] = t/ft[i];       //tmp1 hold f./normf the normalized
     }
 
     for (int i=0; i<nxq; i++) {
@@ -141,7 +157,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     
     //load all required global parameters
     //---------------------------------------------------------------------------------
-	mxArray *array_r;
+    mxArray *array_r;
     mxArray *matx_formf;
     const char *rname = "r";
     const char *ffname = "formf";
@@ -157,7 +173,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 
     //---------------------------------------------------------------------------------
     // load global r
-	array_r = mexGetVariable("global", rname);
+    array_r = mexGetVariable("global", rname);
     nx = mxGetM(array_r);   //r length  
     const double *r = mxGetPr(array_r);
 
@@ -181,7 +197,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
 
     atom_lst = (char**)mxMalloc(strlN*sizeof(char*));
     for (int i=0; i<strlN; ++i) {
-	atom_lst[i] = (char *)mxMalloc((strsN+1)*sizeof(char));
+    atom_lst[i] = (char *)mxMalloc((strsN+1)*sizeof(char));
     }
     for (int i=0; i<strlN; ++i) {
         int j=2*i;
@@ -200,7 +216,7 @@ void mexFunction( int nlhs, mxArray *plhs[],
     mwSize strsN1 = mxGetM(atom_idx1);
     atomff_idx = (char**)mxMalloc(strlN1*sizeof(char*));
     for (int i=0; i<strlN1; ++i) {
-	atomff_idx[i] = (char *)mxMalloc((strsN1+1)*sizeof(char));
+    atomff_idx[i] = (char *)mxMalloc((strsN1+1)*sizeof(char));
     }
     for (int i=0; i<strlN1; ++i) {
         int j=2*i;
