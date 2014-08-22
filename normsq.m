@@ -8,7 +8,9 @@ function [sofq] = normsq(path)
     xdata = sofq(1,:);
     ydata = sofq(2,:);
     maxq = max(xdata);
-    q = 0.5:dq:maxq;
+    minq = min(xdata);
+    minq = round(minq*10)/10;   %round to first decimal place
+    q = minq:dq:maxq;
     % 1-D interpolation with spline method
     y0 = interp1(xdata, ydata, q, 'spline');
     sofq = [q', y0'];

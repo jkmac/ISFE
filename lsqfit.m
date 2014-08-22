@@ -7,7 +7,7 @@ function [x,x0,resnorm,residual] = lsqfit(sq, acu, mean, std)
     max_shift = 50;	%max Y-shift
     high_lb = 50;		%max Y-height, may change according to your data
     low_lb = 0;		%min Y-height, may change according to your data
-	ub = cat(1,abs(r)/10, [high_lb;max_shift]);
+	ub = cat(1,abs(r)/20, [high_lb;max_shift]);
     %ub = cat(1,0.2*ones(size(r)), [high_lb;max_shift]);
     lb = 0.04*ones(size(ub));	%low bound on x parameter, rms >= 0.05
     lb(end) = -max_shift;

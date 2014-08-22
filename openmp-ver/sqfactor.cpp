@@ -122,7 +122,7 @@ void sqfactor(double *x, double *xdata, double *res, const double *r, const doub
     {
         const int nthreads = omp_get_num_threads();
         const int ithread = omp_get_thread_num();
-        #pragma omp single
+        #pragma omp master
         {
             v_private = (double *)mxMalloc(nthreads*nxq*sizeof(double));
             for(int i=0; i<(nxq*nthreads); i++)
