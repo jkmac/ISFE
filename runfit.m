@@ -14,9 +14,12 @@
 % deviation. So mean = 0.5, std = 0.2 would make sure that all initialized
 % rms is around this number.
 
-function [x,resnorm,residual,q,ffit,intra,x0,norm_sofq] = runfit(qi, qf, acu, mean, std, path_coord, path_sq, ffpath, sname)
+function [x,resnorm,residual,q,ffit,intra,x0,norm_sofq] = runfit(qi, qf, acu, mean, std, path_coord, path_sq, ffpath, sname, chk)
 clear x; clear resnorm; clear residual; tic;
-lmt = 15;   %max atom atom distance r will be used for lsqfit
+% important parameters
+lmt = 15;   %max atom-atom distance r above which the pair won't be included into calculation
+global dq
+dq = 0.01;  %step size of S(q) data 
 %%
 fid1 = fopen(path_coord,'r');
 %load atoms coordinatfion
@@ -38,7 +41,7 @@ end
 % extract atom label/number, put it into atom_label
 s = a{2};
 t = char(a{2});
-if size(t,2) == 3
+if size(t,2) == 3 || size(t,2) == 2
     for i=1:size(t,1)
         if length(s{i}) == 3
             s(i) = strcat(s(i), {blanks(1)});
@@ -140,8 +143,6 @@ disp(sprintf('\nrms initialization parameter (Random Gaussian Distribution)\n Me
 
 %%
 %calculate normalized and interpolated SofQ data by calling normsq(drug_name) function
-global dq
-dq = 0.005;
 norm_sofq = normsq(path_sq);
 minq = min(norm_sofq(:,1));
 maxq = max(norm_sofq(:,1));
@@ -162,35 +163,39 @@ q = q';
 ffit = sqfactor(x,q);
 ffit = q.*ffit;
 %%
-disp(sprintf('x(end-1) and X(end):\t\t %g  %g', x(end-1), x(end)));
-
+disp(sprintf('X(end-1) (Amplitude) and X(end) (Y-shift):\t\t %g  %g', x(end-1), x(end)));
 intra = norm_sofq(:,2) - ffit;
-rslt = [q, norm_sofq(:,2), ffit, intra];
-outname = 'SQ.txt';
-outname = strcat(datestr(now, '_HHMM_'), outname);
-outname = strcat(sname, outname);
-dlmwrite(outname, rslt, 'delimiter', '\t', 'precision', 4);
 
-figure
-plot(q, ffit, norm_sofq(:,1),norm_sofq(:,2),'-r');
-legend('Fitted Intra-Struct-Factor F(Q)', 'Normalized Experimental SofQ')
-axis([0 23 -2.5 4]);
-figure
-plot(q, intra)
-title('Q\times(S(Q) - F(Q)) Intermolecule structure factor')
-axis([0 23 -2.5 4]);
+if chk == 1
+    rslt = [q, norm_sofq(:,2), ffit, intra];
+    outname = 'SQ.txt';
+    outname = strcat(datestr(now, '_HHMM_'), outname);
+    outname = strcat(sname, outname);
+    dlmwrite(outname, rslt, 'delimiter', '\t', 'precision', 4);
 
-filename = 'RMS_stat.txt';
-filename = strcat(datestr(now, '_HHMM_'), filename);
-filename = strcat(sname, filename);
-fid = fopen(filename,'w');
+    figure
+    plot(q, ffit, norm_sofq(:,1),norm_sofq(:,2),'-r');
+    legend('Fitted Intra-Struct-Factor F(Q)', 'Normalized Experimental SofQ')
+    axis([0 23 -2.5 4]);
+    figure
+    plot(q, intra)
+    title('Q\times(S(Q) - F(Q)) Intermolecule structure factor')
+    axis([0 23 -2.5 4]);
 
-fprintf(fid, 'atom1\tatom2\tr\trms\n');
-for i = 1:length(r)
-    if r(i) <= 2.5
-    fprintf(fid,'%s\t%s\t%4.2f\t%4.3f\n', linfo1(i,:), linfo2(i,:), r(i), abs(x(i)));
+    filename = 'RMS_stat.txt';
+    filename = strcat(datestr(now, '_HHMM_'), filename);
+    filename = strcat(sname, filename);
+    fid = fopen(filename,'w');
+
+    fprintf(fid, 'atom1\tatom2\tr\trms\n');
+    for i = 1:length(r)
+        if r(i) <= 5
+        fprintf(fid,'%s\t%s\t%4.2f\t%4.3f\n', linfo1(i,:), linfo2(i,:), r(i), abs(x(i)));
+        end
     end
+    fclose(fid);
 end
-fclose(fid);
+r
+x
 toc;
 end

@@ -1,15 +1,16 @@
+//Check MEX call to global value, terminate if there is error.
 #include "mex.h"
 #include <matrix.h>
 #include <string.h>
 #include <assert.h>
 #include <math.h>
 
-// nx is r, nxq is xdata, strlN is atom_lst length respectively, nyf is atomff population
-static mwSize nx, nxq, strlN, nxf, nyf;
 
 void mexFunction( int nlhs, mxArray *plhs[],
                   int nrhs, const mxArray *prhs[])
 {
+    // nx is r, nxq is xdata, strlN is atom_lst length respectively, nyf is atomff population
+    mwSize nx, nxq, strlN, nxf, nyf;
     //check input parameters
     if (nrhs !=2) {
         mexErrMsgIdAndTxt( "MATLAB:myfit:minrhs",

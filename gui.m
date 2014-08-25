@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 01-Jun-2014 20:18:33
+% Last Modified by GUIDE v2.5 19-Aug-2014 13:33:18
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -64,6 +64,7 @@ handles.acu = -3;
 handles.mean = 0.07;
 handles.var = 0.03;
 handles.sname = 'sample';
+handles.chk = 1;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -326,10 +327,10 @@ set(hObject,'string','Calculating...');
 drawnow
 [x,resnorm,residual,q,ffit,intra,x0,norm_sofq] = runfit(handles.qinit,.../
     handles.qfinal,handles.acu,handles.mean,handles.var, .../
-    handles.path_coord,handles.path_sq,handles.ffpath, handles.sname);
+    handles.path_coord,handles.path_sq,handles.ffpath, handles.sname, handles.chk);
 set(hObject,'string','Finished');
 drawnow
-h = msgbox('Operation Completed. ASCII Data saved in working directory.', 'Success');
+h = msgbox('Completed! Data saved in the working directory.', 'Success');
 plot(handles.axes1,q,ffit,norm_sofq(:,1),norm_sofq(:,2),'-r')
 title(handles.axes1,[' Fitting range, Q\in [', num2str(handles.qinit), ',', num2str(handles.qfinal), .../
     ']', ', TolFun = ', num2str(handles.acu), ', lb = ', num2str(handles.rmslow)])
@@ -348,6 +349,20 @@ num2str(handles.mean), ', Std = ', num2str(handles.var)])
 hist(handles.axes4,abs(x(1:end-2)))
 title(handles.axes4,'Final distribution of RMS');
 
+
+% --- Executes on button press in checkbox1.
+function checkbox1_Callback(hObject, eventdata, handles)
+% hObject    handle to checkbox1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of checkbox1
+if (get(hObject,'Value') == get(hObject,'Max'))
+	handles.chk=0;  %checked box, skip saving data to disk
+else
+	handles.chk=1;  %by default it's unchecked, save data to disk
+end
+guidata(hObject, handles);
 
 % --- Executes when user attempts to close figure1.
 function figure1_CloseRequestFcn(hObject, eventdata, handles)
