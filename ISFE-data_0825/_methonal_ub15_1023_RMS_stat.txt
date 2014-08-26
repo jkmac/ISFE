@@ -1,2 +1,0 @@
-atom1	atom2	r	rms
-C1  	O1  	1.44	0.069
