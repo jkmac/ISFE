@@ -17,7 +17,7 @@
 function [x,resnorm,residual,q,ffit,intra,x0,norm_sofq] = runfit(qi, qf, acu, mean, std, path_coord, path_sq, ffpath, sname, chk)
 clear x; clear resnorm; clear residual; tic;
 % important parameters
-lmt = 15;   %max atom-atom distance r above which the pair won't be included into calculation
+lmt = 20;   %max atom-atom distance r above which the pair won't be included into calculation
 global dq
 dq = 0.01;  %step size of S(q) data 
 %%
@@ -138,7 +138,7 @@ formf = formf';
 
 disp(sprintf('Fitting range:\t\t\t [%d, %d]', qi, qf));
 disp(sprintf('rms population:\t\t\t %d', length(r)));
-disp(sprintf('Fitting accuracy:\t\t 10e%d', acu));
+disp(sprintf('Fitting accuracy:\t\t 1e%d', acu));
 disp(sprintf('\nrms initialization parameter (Random Gaussian Distribution)\n Mean:\t\t\t %g\n Std:\t\t\t %g', mean, std));
 
 %%
