@@ -343,11 +343,10 @@ title(handles.axes2,'Intermolecule S(Q)')
 axis(handles.axes2,[0 handles.qfinal -2.5 4]);
 
 hist(handles.axes3,abs(x0(1:end-2)))
-title(handles.axes3,['Gaussian initialization of RMS, ', 'Mean = ', .../
-num2str(handles.mean), ', Std = ', num2str(handles.var)])
+title(handles.axes3,'RMS (initial)');
 
 hist(handles.axes4,abs(x(1:end-2)))
-title(handles.axes4,'Final distribution of RMS');
+title(handles.axes4,'RMS (final)');
 
 
 % --- Executes on button press in checkbox1.
