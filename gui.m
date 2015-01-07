@@ -330,7 +330,9 @@ drawnow
     handles.path_coord,handles.path_sq,handles.ffpath, handles.sname, handles.chk);
 set(hObject,'string','Finished');
 drawnow
-h = msgbox('Completed! Data saved in the working directory.', 'Success');
+h = msgbox('Data saved in the working directory.', 'Success');
+set(hObject,'string','Start');
+drawnow
 plot(handles.axes1,q,ffit,norm_sofq(:,1),norm_sofq(:,2),'-r')
 title(handles.axes1,[' Q\in [', num2str(handles.qinit), ',', num2str(handles.qfinal), .../
     ']', ', TolFun = ', num2str(handles.acu), ', lb = ', num2str(handles.rmslow)])
