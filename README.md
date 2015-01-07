@@ -6,6 +6,11 @@ The program takes experimental total X-ray scattering structure factor data S(Q)
 #### Environment
 The program is developed in Matlab environment with core cost function written in C. Various performance tuning have been applied to the C code, therefore the program runs efficiently even that it resides in Matlab environment. 
 
+#### System Requirement
+(1). Windows 7/8/8.1 64 bit (x64) operating system
+(2). MATLAB Compiler Runtime (MCR) R2014b (8.4) 64 bit (x64), download link: http://www.mathworks.com/products/compiler/mcr/
+(3). Visual C++ Redistributable Packages for Visual Studio 2013 64 bit (x64), download link: http://www.microsoft.com/en-us/download/details.aspx?id=40784
+
 #### How to run 
 To start the program, enter the program root directory in Matlab
 ```matlab
