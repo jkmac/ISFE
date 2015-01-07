@@ -5,7 +5,7 @@ The program takes experimental total X-ray scattering structure factor data S(Q)
 
 
 #### System Requirement
-For standalone Windows x64 app,
+For standalone Windows x64 app:
 
 (1). Windows 7/8/8.1 64 bit (x64) operating system
 
@@ -14,7 +14,7 @@ For standalone Windows x64 app,
 (3). Visual C++ Redistributable Packages for Visual Studio 2013 64 bit (x64), download link: http://www.microsoft.com/en-us/download/details.aspx?id=40784
 
 #### How to run
-Installed the required C++ runtime library and MATLAB Compiler Runtime, then simply double click win_x64.exe to start the standalone application.
+For standalone app, install the required C++ runtime library and MATLAB Compiler Runtime, then simply double click win_x64.exe to start the standalone application.
 
 If you have a copy of MATLAB, then start the gui program in MATLAB command line enviroment:
 Enter the program root directory in Matlab
