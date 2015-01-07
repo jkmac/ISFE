@@ -7,6 +7,7 @@
 // nx is r, nxq is xdata, strlN is atom_lst length respectively, nyf is atomff population
 static mwSize nx, nxq, strlN, nxf, nyf;
 
+// helper functions for vector manipulation
 inline void clear(double *lst) {
     for (int i=0; i<nxq; i++) {
         lst[i] = 0;
