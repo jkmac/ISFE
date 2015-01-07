@@ -16,6 +16,7 @@
 
 function [x,resnorm,residual,q,ffit,intra,x0,norm_sofq] = runfit(qi, qf, acu, mean, std, path_coord, path_sq, ffpath, sname, chk)
 clear x; clear resnorm; clear residual; tic;
+clearvars -global
 % important parameters
 lmt = 20;   %max atom-atom distance r above which the pair won't be included into calculation
 global dq
