@@ -16,8 +16,8 @@ For standalone Windows x64 app:
 #### How to run
 For standalone app, install the required C++ runtime library and MATLAB Compiler Runtime, then simply double click win_x64.exe to start the standalone application.
 
-If you have a copy of MATLAB, then start the gui program in MATLAB command line enviroment: 
-Enter the program root directory in Matlab
+If you have a copy of MATLAB, start the gui program in MATLAB command line enviroment: 
+
 ```matlab
 cd path-to-XISF-directory
 ```
