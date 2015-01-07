@@ -1,20 +1,23 @@
 ##XISF - Separation of intra- and inter-molecular interactions from total x-ray scattering data
 
 #### What is XISF
-The program takes experimental total X-ray scattering structure factor data S(Q) as input and performs intermolecule S(Q) extraction using trust-region optimization.
+The program takes experimental total X-ray scattering structure factor data S(Q) as input and performs intermolecule S(Q) extraction using trust-region optimization method.
 
-#### Environment
-The program is developed in Matlab environment with core cost function written in C. Various performance tuning have been applied to the C code, therefore the program runs efficiently even that it resides in Matlab environment. 
 
 #### System Requirement
+For standalone Windows x64 app,
+
 (1). Windows 7/8/8.1 64 bit (x64) operating system
 
 (2). MATLAB Compiler Runtime (MCR) R2014b (8.4) 64 bit (x64), download link: http://www.mathworks.com/products/compiler/mcr/
 
 (3). Visual C++ Redistributable Packages for Visual Studio 2013 64 bit (x64), download link: http://www.microsoft.com/en-us/download/details.aspx?id=40784
 
-#### How to run 
-To start the program, enter the program root directory in Matlab
+#### How to run
+Installed the required C++ runtime library and MATLAB Compiler Runtime, then simply double click win_x64.exe to start the standalone application.
+
+If you have a copy of MATLAB, then start the gui program in MATLAB command line enviroment:
+Enter the program root directory in Matlab
 ```matlab
 cd path-to-XISF-directory
 ```
