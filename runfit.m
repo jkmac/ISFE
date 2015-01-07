@@ -195,7 +195,5 @@ if chk == 1
     end
     fclose(fid);
 end
-r
-x
 toc;
 end
