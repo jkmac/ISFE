@@ -14,8 +14,8 @@
 % deviation. So mean = 0.5, std = 0.2 would make sure that all initialized
 % rms is around this number.
 
-function [x,resnorm,residual,q,ffit,intra,x0,norm_sofq] = runfit(qi, qf, acu, mean, std, path_coord, path_sq, ffpath, sname, chk)
-clear x; clear resnorm; clear residual; tic;
+function [x,q,ffit,intra,x0,norm_sofq] = runfit(qi, qf, acu, mean, std, path_coord, path_sq, ffpath, sname, chk)
+clear x; tic;
 clearvars -global
 % important parameters
 lmt = 20;   %max atom-atom distance r above which the pair won't be included into calculation
@@ -156,7 +156,9 @@ for i = 1:size(norm_sofq,1)
 end
 fit_range = norm_sofq(idxi:idxf, :);
 %script, call fitting function to fit on select Q range
-[x,x0,resnorm,residual] = lsqfit(fit_range, acu, mean, std);
+[x,x0,Jaco] = lsqfit(fit_range, acu, mean, std);
+%Cov = inv((Jaco.')*Jaco);
+Cov = Jaco*(Jaco.');
 
 %%
 q = minq:dq:maxq;
@@ -188,13 +190,18 @@ if chk == 1
     filename = strcat(sname, filename);
     fid = fopen(filename,'w');
 
-    fprintf(fid, 'atom1\tatom2\tr\trms\n');
+    fprintf(fid, 'atom1\tatom2\tr\t\trms\n');
     for i = 1:length(r)
         if r(i) <= 5
         fprintf(fid,'%s\t%s\t%4.2f\t%4.3f\n', linfo1(i,:), linfo2(i,:), r(i), abs(x(i)));
         end
     end
     fclose(fid);
+    
+    fname = 'Covar_stat.txt';
+    fname = strcat(datestr(now, '_HHMM_'), fname);
+    fname = strcat(sname, fname);
+    dlmwrite(fname,full(Cov), 'delimiter', '\t', 'precision', 3);
 end
 toc;
 end

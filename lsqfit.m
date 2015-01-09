@@ -1,4 +1,4 @@
-function [x,x0,resnorm,residual] = lsqfit(sq, acu, mean, std)
+function [x,x0,Jaco] = lsqfit(sq, acu, mean, std)
 	%prepare data for optimization, y'=y/x, redefine y for computation
 	xdata = sq(:,1);
 	ydata = sq(:,2)./xdata;
@@ -19,5 +19,5 @@ function [x,x0,resnorm,residual] = lsqfit(sq, acu, mean, std)
     x0(end-1) = 10;	%initial Y-height, correct exp data Y-variation in intensity
     x0(end) = 0;	%initial Y shift, correct exp data Y-deviation from y=0
     flag=glcheck(x0, xdata);
-	[x,resnorm,residual] = lsqcurvefit(@sqfactor, x0, xdata, ydata, lb, ub, options);
+	[x,resnorm,residual,exitflag,output,lambda,Jaco] = lsqcurvefit(@sqfactor, x0, xdata, ydata, lb, ub, options);
 end

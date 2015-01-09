@@ -325,7 +325,7 @@ function runfit_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 set(hObject,'string','Calculating...');
 drawnow
-[x,resnorm,residual,q,ffit,intra,x0,norm_sofq] = runfit(handles.qinit,.../
+[x,q,ffit,intra,x0,norm_sofq] = runfit(handles.qinit,.../
     handles.qfinal,handles.acu,handles.mean,handles.var, .../
     handles.path_coord,handles.path_sq,handles.ffpath, handles.sname, handles.chk);
 set(hObject,'string','Finished');
