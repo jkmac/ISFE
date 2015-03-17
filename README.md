@@ -31,6 +31,8 @@ After setting up proper input parameters, press "Start" to run the program. Upon
 
 #### The input controls
 The table gives a summary of the input parameters used in XISF:
+
+
 | Parameter       | Detail                          | Range    | Default   |
 |-----------------|---------------------------------|----------|-----------|
 | min Q           | Lower bound of the fitting range| > 2      | 6         |
