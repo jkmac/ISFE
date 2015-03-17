@@ -337,12 +337,12 @@ plot(handles.axes1,q,ffit,norm_sofq(:,1),norm_sofq(:,2),'-r')
 title(handles.axes1,[' Q\in [', num2str(handles.qinit), ',', num2str(handles.qfinal), .../
     ']', ', TolFun = ', num2str(handles.acu), ', lb = ', num2str(handles.rmslow)])
 legend(handles.axes1,'Fitted intra- S(Q)', 'Normalized Exp S(Q)')
-axis(handles.axes1,[0 handles.qfinal -2.5 4]);
+axis(handles.axes1,[0 handles.qfinal -2 6]);
 
 plot(handles.axes2,q, intra);
 %title(['Mean = ', num2str(mean), ', Std = ', num2str(std)])
 title(handles.axes2,'Intermolecule S(Q)')
-axis(handles.axes2,[0 handles.qfinal -2.5 4]);
+axis(handles.axes2,[0 handles.qfinal -2 6]);
 
 hist(handles.axes3,abs(x0(1:end-2)))
 title(handles.axes3,'RMS (initial)');

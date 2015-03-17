@@ -14,13 +14,11 @@
 % deviation. So mean = 0.5, std = 0.2 would make sure that all initialized
 % rms is around this number.
 
-function [x,q,ffit,intra,x0,norm_sofq] = runfit(qi, qf, acu, mean, std, path_coord, path_sq, ffpath, sname, chk)
+function [x,xdata,ffitn,intra,x0,SQ] = runfit(qi, qf, acu, mean, std, path_coord, path_sq, ffpath, sname, chk)
 clear x; tic;
 clearvars -global
 % important parameters
 lmt = 20;   %max atom-atom distance r above which the pair won't be included into calculation
-global dq
-dq = 0.01;  %step size of S(q) data 
 %%
 fid1 = fopen(path_coord,'r');
 %load atoms coordinatfion
@@ -137,51 +135,67 @@ pinfo1 = pinfo1';
 pinfo2 = pinfo2';
 formf = formf';
 
-disp(sprintf('Fitting range:\t\t\t [%d, %d]', qi, qf));
-disp(sprintf('rms population:\t\t\t %d', length(r)));
-disp(sprintf('Fitting accuracy:\t\t 1e%d', acu));
-disp(sprintf('\nrms initialization parameter (Random Gaussian Distribution)\n Mean:\t\t\t %g\n Std:\t\t\t %g', mean, std));
+disp(sprintf('Fitting range:\t\t\t\t [%3.1f, %3.1f]', qi, qf));
+disp(sprintf('rms population:\t\t\t\t %d', length(r)));
+disp(sprintf('Fitting accuracy:\t\t\t 1e%d', acu));
+global data_pop;
+data_pop = ceil(length(r)/100)*100; %data points needed for TR algorithm
+disp(sprintf('Adjusted data population:\t %d', data_pop));
+
+
 
 %%
 %calculate normalized and interpolated SofQ data by calling normsq(drug_name) function
-norm_sofq = normsq(path_sq);
-minq = min(norm_sofq(:,1));
-maxq = max(norm_sofq(:,1));
-for i = 1:size(norm_sofq,1)
-    if norm_sofq(i,1) == qi
+SQ = readsq(path_sq);
+xdata = SQ(:,1);
+ydata = SQ(:,2);
+minq = min(SQ(:,1));
+maxq = max(SQ(:,1));
+
+step = SQ(2,1) - SQ(1,1); %increment step of x vector
+
+for i = 1:size(SQ,1)
+    if SQ(i,1) - qi < 1.2*step %find data point near qi
         idxi = i;
-    elseif norm_sofq(i,1) == qf
+    elseif SQ(i,1) - qf < 1.2*step
         idxf = i;
     end
 end
-fit_range = norm_sofq(idxi:idxf, :);
+
+disp(sprintf('Adjusted Fitting range:\t\t [%3.1f, %3.1f]', SQ(idxi,1), SQ(idxf,1)));
+disp(sprintf('\nrms initialization parameter (Random Gaussian Distribution)\n Mean:\t\t\t %g\n Std:\t\t\t %g', mean, std));
+p_SQ = SQ(idxi:idxf,:);
+
+fit_range = proc_sq(p_SQ);
 %script, call fitting function to fit on select Q range
 [x,x0,Jaco] = lsqfit(fit_range, acu, mean, std);
 %Cov = inv((Jaco.')*Jaco);
 Cov = Jaco*(Jaco.');
 
 %%
+dq = 0.01;
 q = minq:dq:maxq;
 q = q';
 ffit = sqfactor(x,q);
 ffit = q.*ffit;
+ffitn = interp1(q, ffit, xdata, 'spline');
 %%
 disp(sprintf('X(end-1) (Amplitude) and X(end) (Y-shift):\t\t %g  %g', x(end-1), x(end)));
-intra = norm_sofq(:,2) - ffit;
+intra = SQ(:,2) - ffitn;
 
 if chk == 1
-    rslt = [q, norm_sofq(:,2), ffit, intra];
+    rslt = [xdata, ydata, ffitn, intra];
     outname = 'SQ.txt';
     outname = strcat(datestr(now, '_HHMM_'), outname);
     outname = strcat(sname, outname);
     dlmwrite(outname, rslt, 'delimiter', '\t', 'precision', 4);
 
     figure
-    plot(q, ffit, norm_sofq(:,1),norm_sofq(:,2),'-r');
+    plot(q, ffit, xdata,ydata,'-r');
     legend('Fitted Intra-Struct-Factor F(Q)', 'Normalized Experimental SofQ')
     axis([0 23 -2.5 4]);
     figure
-    plot(q, intra)
+    plot(xdata, intra)
     title('Q\times(S(Q) - F(Q)) Intermolecule structure factor')
     axis([0 23 -2.5 4]);
 
