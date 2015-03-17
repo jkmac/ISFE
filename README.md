@@ -29,6 +29,16 @@ gui
 
 After setting up proper input parameters, press "Start" to run the program. Upon finishing, the program will write RMS data and extracted SQ data to XISF root directory in ASCII format. The file name starts with text that was entered earlier. 
 
+#### The input controls
+The table gives a summary of the input parameters used in XISF:
+| Parameter       | Detail                          | Range    | Default   |
+|-----------------|:-------------------------------:|---------:|----------:|
+| min Q           | Lower bound of the fitting range| > 2      | 6         |
+| max Q           | Upper bound of the fitting range| -        | 16        |
+| accuracy        | Stopping threshhold             | < -1     | -3        |
+|mean of Gaussian | The mean of random Gaussian sampling | > 0 | 0.07      |
+|s.t.d of Gaussian| The standard devitaion of the Gaussian | > 0| 0.03 |
+
 #### Form factor format
 The file 'form_factors' stores the atomic form factors for various interested atoms. You can change or update the file with more recent data. The format of the data is as follow (first two lines):
 ```

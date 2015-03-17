@@ -1,7 +1,7 @@
-%load experimental SofQ data and normalize/postprocessing it for
-%least-square fitting
+%process data and return the interpolated data in range [qi,qf]
+%garrantee that data population exceeds parameter space size
+%Therefore trust-region algorithm is garranteed in use
 function [Iq_range] = proc_sq(SQ)
-
     global data_pop
     xdata = SQ(:,1)'; %xdata row vector
     ydata = SQ(:,2)';

@@ -128,13 +128,14 @@ for i = 1:(dim-1)
     end
 end
 
-%input information
+%input information, global vars used in MEX file
 atom_type = atom_type';
 atomff_index = atomff_index';
 pinfo1 = pinfo1';
 pinfo2 = pinfo2';
 formf = formf';
 
+%display setting info
 disp(sprintf('Fitting range:\t\t\t\t [%3.1f, %3.1f]', qi, qf));
 disp(sprintf('rms population:\t\t\t\t %d', length(r)));
 disp(sprintf('Fitting accuracy:\t\t\t 1e%d', acu));
@@ -143,9 +144,8 @@ data_pop = ceil(length(r)/100)*100; %data points needed for TR algorithm
 disp(sprintf('Adjusted data population:\t %d', data_pop));
 
 
-
 %%
-%calculate normalized and interpolated SofQ data by calling normsq(drug_name) function
+%read data from file
 SQ = readsq(path_sq);
 xdata = SQ(:,1);
 ydata = SQ(:,2);
@@ -155,7 +155,7 @@ maxq = max(SQ(:,1));
 step = SQ(2,1) - SQ(1,1); %increment step of x vector
 
 for i = 1:size(SQ,1)
-    if SQ(i,1) - qi < 1.2*step %find data point near qi
+    if SQ(i,1) - qi < 1.2*step  %find data point near qi, if error returns when running, increase the coefficient for larger search range
         idxi = i;
     elseif SQ(i,1) - qf < 1.2*step
         idxf = i;
@@ -166,20 +166,27 @@ disp(sprintf('Adjusted Fitting range:\t\t [%3.1f, %3.1f]', SQ(idxi,1), SQ(idxf,1
 disp(sprintf('\nrms initialization parameter (Random Gaussian Distribution)\n Mean:\t\t\t %g\n Std:\t\t\t %g', mean, std));
 p_SQ = SQ(idxi:idxf,:);
 
+%process data for desired range
 fit_range = proc_sq(p_SQ);
-%script, call fitting function to fit on select Q range
+
+%the main script, call fitting function to fit on select Q range
 [x,x0,Jaco] = lsqfit(fit_range, acu, mean, std);
+
 %Cov = inv((Jaco.')*Jaco);
+%calculate Covariance matrix
 Cov = Jaco*(Jaco.');
 
 %%
+%processing raw data to get finer points
 dq = 0.01;
 q = minq:dq:maxq;
 q = q';
 ffit = sqfactor(x,q);
-ffit = q.*ffit;
+ffit = q.*ffit; %calculate inter-SQ from returned parameter vector x
+% interpolate data to match raw x data spacing
 ffitn = interp1(q, ffit, xdata, 'spline');
 %%
+%plot and write data
 disp(sprintf('X(end-1) (Amplitude) and X(end) (Y-shift):\t\t %g  %g', x(end-1), x(end)));
 intra = SQ(:,2) - ffitn;
 
