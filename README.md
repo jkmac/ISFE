@@ -25,7 +25,7 @@ and start the GUI
 ```matlab
 gui
 ```
- Enter the sample name, desired intra-molecule SQ fitting range on experimental data (usually from q=4 to the max of S(q) data). The fitting accuracy is a negative integer. For example, -3 means the target residual of fitted S(q) data is smaller than 10e-3. The initial root-mean-square (rms) value is sampled from Gaussian distribution. One can adjust the mean and standard deviation of the Gaussian according to their needs.
+ Enter the sample name, desired intra-molecule SQ fitting range on experimental data (usually from q=4 to the max of S(q) data). The fitting accuracy is a negative integer. For example, -3 means the target residual of fitted S(q) data is smaller than 1e-3. The initial root-mean-square (rms) value is sampled from Gaussian distribution. One can adjust the mean and standard deviation of the Gaussian according to their needs.
 
 After setting up proper input parameters, press "Start" to run the program. Upon finishing, the program will write RMS data and extracted SQ data to XISF root directory in ASCII format. The file name starts with text that was entered earlier. 
 
