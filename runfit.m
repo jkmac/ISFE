@@ -14,7 +14,7 @@
 % deviation. So mean = 0.5, std = 0.2 would make sure that all initialized
 % rms is around this number.
 
-function [x,xdata,ffitn,intra,x0,SQ] = runfit(qi, qf, acu, mean, std, path_coord, path_sq, ffpath, sname, chk)
+function [x,xdata,ffitn,intra,x0,SQ] = runfit(qi, qf, acu, mean, std, path_coord, path_sq, ffpath, sname, chk, solver)
 clear x; tic;
 clearvars -global
 % important parameters
@@ -169,12 +169,18 @@ p_SQ = SQ(idxi:idxf,:);
 %process data for desired range
 fit_range = proc_sq(p_SQ);
 
-%the main script, call fitting function to fit on select Q range
-[x,x0,Jaco] = lsqfit(fit_range, acu, mean, std);
 
-%Cov = inv((Jaco.')*Jaco);
-%calculate Covariance matrix
-Cov = Jaco*(Jaco.');
+if solver == 0
+    %the main script, call fitting function to fit on select Q range
+    [x,x0,Jaco] = lsqfit(fit_range, acu, mean, std);
+
+    %Cov = inv((Jaco.')*Jaco);
+    %calculate Covariance matrix
+    Cov = Jaco*(Jaco.');
+elseif solver == 1
+      [x,x0,fval] = lsqfit_ms(fit_range, acu, mean, std);
+end
+
 
 %%
 %processing raw data to get finer points
@@ -219,10 +225,12 @@ if chk == 1
     end
     fclose(fid);
     
-    fname = 'Covar_stat.txt';
-    fname = strcat(datestr(now, '_HHMM_'), fname);
-    fname = strcat(sname, fname);
-    dlmwrite(fname,full(Cov), 'delimiter', '\t', 'precision', 3);
+    if solver == 0
+        fname = 'Covar_stat.txt';
+        fname = strcat(datestr(now, '_HHMM_'), fname);
+        fname = strcat(sname, fname);
+        dlmwrite(fname,full(Cov), 'delimiter', '\t', 'precision', 3);
+    end
 end
 toc;
 end

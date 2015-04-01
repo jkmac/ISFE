@@ -22,7 +22,7 @@ function varargout = gui(varargin)
 
 % Edit the above text to modify the response to help gui
 
-% Last Modified by GUIDE v2.5 19-Aug-2014 13:33:18
+% Last Modified by GUIDE v2.5 01-Apr-2015 13:44:27
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,15 +56,18 @@ function gui_OpeningFcn(hObject, eventdata, handles, varargin)
 % Initialize GUI data, default values
 handles.output = hObject;
 handles.path = pwd;
+handles.path_coord = pwd;
+handles.path_sq = pwd;
 handles.ffpath = strcat(handles.path,'/form_factors');
 handles.qinit = 6;
 handles.qfinal = 16;
 handles.rmslow = 0;
 handles.acu = -3;
-handles.mean = 0.07;
-handles.var = 0.03;
+handles.gmean = 0.07;
+handles.gvar = 0.03;
 handles.sname = 'sample';
 handles.chk = 1;
+handles.alg = 0; %default TR = 0, Multistart = 1
 % Update handles structure
 guidata(hObject, handles);
 
@@ -235,25 +238,25 @@ end
 
 
 
-function mean_Callback(hObject, eventdata, handles)
-% hObject    handle to mean (see GCBO)
+function g_mean_Callback(hObject, eventdata, handles)
+% hObject    handle to g_mean (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of mean as text
-%        str2double(get(hObject,'String')) returns contents of mean as a double
+% Hints: get(hObject,'String') returns contents of g_mean as text
+%        str2double(get(hObject,'String')) returns contents of g_mean as a double
 user_entry = str2double(get(hObject,'string'));
 if isnan(user_entry)
     errordlg('You must enter a numeric value','Bad Input','modal')
     uicontrol(hObject)
 	return
 end
-handles.mean = user_entry;
+handles.gmean = user_entry;
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
-function mean_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to mean (see GCBO)
+function g_mean_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to g_mean (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -265,25 +268,25 @@ end
 
 
 
-function variance_Callback(hObject, eventdata, handles)
-% hObject    handle to variance (see GCBO)
+function g_var_Callback(hObject, eventdata, handles)
+% hObject    handle to g_var (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: get(hObject,'String') returns contents of variance as text
-%        str2double(get(hObject,'String')) returns contents of variance as a double
+% Hints: get(hObject,'String') returns contents of g_var as text
+%        str2double(get(hObject,'String')) returns contents of g_var as a double
 user_entry = str2double(get(hObject,'string'));
 if isnan(user_entry)
     errordlg('You must enter a numeric value','Bad Input','modal')
     uicontrol(hObject)
 	return
 end
-handles.var = user_entry;
+handles.gvar = user_entry;
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
-function variance_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to variance (see GCBO)
+function g_var_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to g_var (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -318,6 +321,31 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','green');
 end
 
+
+
+% --- Executes during object creation, after setting all properties.
+function uibuttongroup1_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to uibuttongroup1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+
+% --- Executes when selected object is changed in uibuttongroup1.
+function uibuttongroup1_SelectionChangedFcn(hObject, eventdata, handles)
+% hObject    handle to the selected object in uibuttongroup1 
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
+        case 'tr'
+            handles.alg = 0;
+            display('Selected Trust-region-reflect local optimizer');
+        case 'ms'
+            handles.alg = 1;
+            display('Selected Multi-start global optimizer');
+    end
+guidata(hObject, handles);
+
+
 % --- Executes on button press in runfit.
 function runfit_Callback(hObject, eventdata, handles)
 % hObject    handle to runfit (see GCBO)
@@ -326,8 +354,8 @@ function runfit_Callback(hObject, eventdata, handles)
 set(hObject,'string','Calculating...');
 drawnow
 [x,q,ffit,intra,x0,norm_sofq] = runfit(handles.qinit,.../
-    handles.qfinal,handles.acu,handles.mean,handles.var, .../
-    handles.path_coord,handles.path_sq,handles.ffpath, handles.sname, handles.chk);
+    handles.qfinal,handles.acu,handles.gmean,handles.gvar, .../
+    handles.path_coord,handles.path_sq,handles.ffpath, handles.sname, handles.chk, handles.alg);
 set(hObject,'string','Finished');
 drawnow
 h = msgbox('Data saved in the working directory.', 'Success');
@@ -340,7 +368,7 @@ legend(handles.axes1,'Fitted intra- S(Q)', 'Normalized Exp S(Q)')
 axis(handles.axes1,[0 handles.qfinal -2 6]);
 
 plot(handles.axes2,q, intra);
-%title(['Mean = ', num2str(mean), ', Std = ', num2str(std)])
+%title(['g_mean = ', num2str(g_mean), ', Std = ', num2str(std)])
 title(handles.axes2,'Intermolecule S(Q)')
 axis(handles.axes2,[0 handles.qfinal -2 6]);
 
@@ -373,3 +401,33 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 
 % Hint: delete(hObject) closes the figure
 delete(hObject);
+
+
+% --- Executes on button press in reset.
+function reset_Callback(hObject, eventdata, handles)
+% hObject    handle to reset (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+clc;
+handles.path = pwd;
+handles.ffpath = strcat(handles.path,'/form_factors');
+handles.path_coord = pwd;
+handles.path_sq = pwd;
+handles.qinit = 6;
+handles.qfinal = 16;
+handles.rmslow = 0;
+handles.acu = -3;
+handles.gmean = 0.07;
+handles.gvar = 0.03;
+handles.sname = 'sample';
+set(handles.read_coord_file, 'String', 'choose file (.txt)');
+set(handles.read_sq_file, 'String', 'choose file (.dat)');
+set(handles.runfit, 'String', 'Start');
+set(handles.smp_name, 'String', 'Enter Sampe Name');
+set(handles.q_init, 'String', '6');
+set(handles.q_final, 'String', '16');
+set(handles.accu, 'String', '-3');
+set(handles.g_mean, 'String', '0.07');
+set(handles.g_var, 'String', '0.03');
+drawnow
+guidata(hObject, handles);

@@ -41,6 +41,11 @@ The table gives a summary of the input parameters used in XISF:
 |mean of Gaussian | The mean of random Gaussian sampling | > 0 | 0.07      |
 |s.t.d of Gaussian| The standard devitaion of the Gaussian | > 0| 0.03 |
 
+#### Optimization Algorithm
+Right now XISF provide two algoritms: one local optimizer and one global optimizer. Both are based on trust-region-reflect none-linear optimization method. The trust region method belongs to line search method. It uses a easier to compute quadratic surface to approximate the objective function within an adjustable radius, within which is called the trust region. This algorithm is more efficient for large-scale problem, and hence we choose it to optimize the inter-molecular strcuture factor. 
+
+The global optimizer is the Multi-Start method provided by MATLAB. The underlying optimizer is still trust-region-reflect routine. Multi-start will calculate from a set of different initial conditions and return the best solution based on the residual error. In XISF, the global optimizer is set to calculate 20 paths, therefore it will take significantly longer than local optimizer. We suggest the user to start with the default local optimizer for large molecules.
+
 #### Form factor format
 The file 'form_factors' stores the atomic form factors for various interested atoms. You can change or update the file with more recent data. The format of the data is as follow (first two lines):
 ```
