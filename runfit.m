@@ -201,6 +201,9 @@ if chk == 1
     outname = 'SQ.txt';
     outname = strcat(datestr(now, '_HHMM_'), outname);
     outname = strcat(sname, outname);
+    fid = fopen(outname, 'wt')
+    fprintf(fid, '%s\t%s\t%s\t%s\n', 'q','S(q)','inter S(q)', 'intra S(q)');
+    fclose(fid)
     dlmwrite(outname, rslt, 'delimiter', '\t', 'precision', 4);
 
     figure
