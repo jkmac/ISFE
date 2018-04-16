@@ -1,11 +1,11 @@
-##XISF - Separation of intra- and inter-molecular interactions from total x-ray scattering data
+## XISF - Separation of intra- and inter-molecular interactions from total x-ray scattering data
 
 #### What is XISF
-The program takes experimental total X-ray scattering structure factor data S(Q) as input and performs intermolecule S(Q) extraction using trust-region optimization method.
+XISF is a Matlab program that takes experimental total X-ray scattering structure factor S(Q) as input and extracts intermolecule structure factor S(Q) by using trust-region class optimization algorithm.
 
 
 #### System Requirement
-For standalone Windows x64 app:
+To run the program as standalone Windows app, following requirements must be met:
 
 (1). Windows 7/8/8.1 64 bit (x64) operating system
 
@@ -13,10 +13,10 @@ For standalone Windows x64 app:
 
 (3). Visual C++ Redistributable Packages for Visual Studio 2013 64 bit (x64), download link: http://www.microsoft.com/en-us/download/details.aspx?id=40784
 
-#### How to run
-For standalone version, download the entire code repository and install the required runtime library, then double click win_x64.exe to start the standalone application.
+#### How to run the program
+Download the latest release and install the required runtime library as mentioned in the requirements, then double click win_x64.exe to start the standalone app.
 
-If you have a copy of MATLAB, start the gui program in MATLAB command line enviroment: 
+If you have a copy of MATLAB, then an alternative way is to start the GUI using Matlab command line: 
 
 ```matlab
 cd path-to-XISF-directory
@@ -25,7 +25,8 @@ and start the GUI
 ```matlab
 gui
 ```
- Enter the sample name, desired intra-molecule SQ fitting range on experimental data (usually from q=4 to the max of S(q) data). The fitting accuracy is a negative integer. For example, -3 means the target residual of fitted S(q) data is smaller than 1e-3. The initial root-mean-square (rms) value is sampled from Gaussian distribution. One can adjust the mean and standard deviation of the Gaussian according to their needs.
+
+Enter the sample name, desired intra-molecule SQ fitting range on experimental data (usually from q=4 to the max of S(q) data). The fitting accuracy is a negative integer. For example, -3 means the target residual of fitted S(q) data is smaller than 1e-3. The initial root-mean-square (rms) value is sampled from Gaussian distribution. One can adjust the mean and standard deviation of the Gaussian according to their needs.
 
 After setting up proper input parameters, press "Start" to run the program. Upon finishing, the program will write RMS data and extracted SQ data to XISF root directory in ASCII format. The file name starts with text that was entered earlier. 
 
