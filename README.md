@@ -77,4 +77,5 @@ Alternatively, one could use any crystallography program to export the orthornom
 
 #### Citation
 Please cite this work if you find it useful:
+
 Mou, Q., Benmore, C. J., & Yarger, J. L. (2015). X-ray Intermolecular Structure Factor (XISF): Separation of intra- and intermolecular interactions from total X-ray scattering data. Journal of Applied Crystallography, 48, 950-952. DOI: 10.1107/S1600576715005518
