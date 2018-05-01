@@ -74,3 +74,7 @@ C        C3      1.51180    -1.08760    -0.41210
 ```
 
 Alternatively, one could use any crystallography program to export the orthornomal basis coordinates and mannually edit the file following the format above.
+
+#### Citation
+Please cite this work if you find it useful:
+Mou, Q., Benmore, C. J., & Yarger, J. L. (2015). X-ray Intermolecular Structure Factor (XISF): Separation of intra- and intermolecular interactions from total X-ray scattering data. Journal of Applied Crystallography, 48, 950-952. DOI: 10.1107/S1600576715005518
